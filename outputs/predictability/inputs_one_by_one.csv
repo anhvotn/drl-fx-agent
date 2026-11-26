@@ -1,0 +1,13 @@
+,correlation_next_day,years_with_same_sign
+ret_1,-0.001,8.0
+ret_5,-0.014,7.0
+ret_20,-0.023,10.0
+ret_60,0.0,3.0
+vol_20,0.015,6.0
+z_20,-0.017,8.0
+rate_gap,-0.005,5.0
+rate_gap_chg_60,0.002,5.0
+epu,0.017,4.0
+epu_chg_20,-0.02,7.0
+sffed,-0.015,5.0
+sffed_chg_20,-0.007,7.0

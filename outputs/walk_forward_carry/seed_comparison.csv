@@ -1,0 +1,8 @@
+,sharpe,return_%,max_drawdown_%,positive_folds,carry_%
+seed 0,0.03,0.88,-13.78,4.0,5.68
+seed 1,-0.08,-2.3,-12.63,4.0,3.53
+seed 2,0.15,3.86,-9.95,3.0,3.05
+vote of 3 seeds,0.17,4.83,-13.21,,
+carry strategy,0.04,1.11,,,
+trend strategy,-0.24,-6.62,,,
+buy & hold,-0.04,-1.14,,,

@@ -1,0 +1,4 @@
+,correlation,hit_rate_%,r2_oos_%,strategy_sharpe,random_same_turnover_p95
+linear,0.008,49.1,-1.91,-0.23,0.47
+gbm,-0.032,50.0,-0.69,-0.19,0.44
+net,-0.004,49.8,-0.59,-0.19,0.45

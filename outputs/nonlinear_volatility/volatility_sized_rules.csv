@@ -1,0 +1,9 @@
+,sharpe,return_%,max_drawdown_%,cost_%
+carry: fixed size,0.19,16.12,-15.61,0.0
+carry: naive vol,0.27,21.04,-13.98,0.34
+carry: price-only forecast,0.25,20.14,-14.87,0.36
+carry: price+news+rates forecast,0.19,15.56,-15.74,0.37
+trend: fixed size,-0.15,-11.34,-22.13,1.39
+trend: naive vol,-0.26,-16.71,-24.99,1.72
+trend: price-only forecast,-0.24,-16.09,-23.64,1.75
+trend: price+news+rates forecast,-0.21,-14.77,-24.91,1.79

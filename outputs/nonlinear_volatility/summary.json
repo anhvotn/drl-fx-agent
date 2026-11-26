@@ -1,0 +1,127 @@
+{
+  "direction": {
+    "days": 2826,
+    "correlation_noise_band_95": 0.037,
+    "models": {
+      "linear": {
+        "correlation": 0.008,
+        "hit_rate_%": 49.1,
+        "r2_oos_%": -1.91,
+        "strategy_sharpe": -0.23,
+        "random_same_turnover_p95": 0.47
+      },
+      "gbm": {
+        "correlation": -0.032,
+        "hit_rate_%": 50.0,
+        "r2_oos_%": -0.69,
+        "strategy_sharpe": -0.19,
+        "random_same_turnover_p95": 0.44
+      },
+      "net": {
+        "correlation": -0.004,
+        "hit_rate_%": 49.8,
+        "r2_oos_%": -0.59,
+        "strategy_sharpe": -0.19,
+        "random_same_turnover_p95": 0.45
+      }
+    }
+  },
+  "planted_nonlinear_signal": {
+    "true_correlation_of_planted_pattern": 0.155,
+    "models": {
+      "linear": {
+        "correlation": 0.009,
+        "hit_rate_%": 49.4,
+        "r2_oos_%": -1.92
+      },
+      "gbm": {
+        "correlation": -0.003,
+        "hit_rate_%": 50.7,
+        "r2_oos_%": -0.46
+      },
+      "net": {
+        "correlation": -0.0,
+        "hit_rate_%": 51.0,
+        "r2_oos_%": -0.65
+      }
+    }
+  },
+  "volatility": {
+    "days": 2822,
+    "models": {
+      "naive": {
+        "r2_vs_mean_%": 4.8,
+        "improvement_vs_naive_%": 0.0,
+        "correlation": 0.415
+      },
+      "price_only": {
+        "r2_vs_mean_%": 16.2,
+        "improvement_vs_naive_%": 11.9,
+        "correlation": 0.411
+      },
+      "price_news_rates": {
+        "r2_vs_mean_%": 9.6,
+        "improvement_vs_naive_%": 5.1,
+        "correlation": 0.358
+      },
+      "gbm_all": {
+        "r2_vs_mean_%": 1.6,
+        "improvement_vs_naive_%": -3.4,
+        "correlation": 0.26
+      }
+    },
+    "news_and_rates_vs_price_only_t_stat": -2.89,
+    "gbm_all_vs_price_only_t_stat": -5.51,
+    "note": "t above about 2 means the extra inputs improve the forecast reliably"
+  },
+  "volatility_sized_rules": {
+    "carry: fixed size": {
+      "sharpe": 0.19,
+      "return_%": 16.12,
+      "max_drawdown_%": -15.61,
+      "cost_%": 0.0
+    },
+    "carry: naive vol": {
+      "sharpe": 0.27,
+      "return_%": 21.04,
+      "max_drawdown_%": -13.98,
+      "cost_%": 0.34
+    },
+    "carry: price-only forecast": {
+      "sharpe": 0.25,
+      "return_%": 20.14,
+      "max_drawdown_%": -14.87,
+      "cost_%": 0.36
+    },
+    "carry: price+news+rates forecast": {
+      "sharpe": 0.19,
+      "return_%": 15.56,
+      "max_drawdown_%": -15.74,
+      "cost_%": 0.37
+    },
+    "trend: fixed size": {
+      "sharpe": -0.15,
+      "return_%": -11.34,
+      "max_drawdown_%": -22.13,
+      "cost_%": 1.39
+    },
+    "trend: naive vol": {
+      "sharpe": -0.26,
+      "return_%": -16.71,
+      "max_drawdown_%": -24.99,
+      "cost_%": 1.72
+    },
+    "trend: price-only forecast": {
+      "sharpe": -0.24,
+      "return_%": -16.09,
+      "max_drawdown_%": -23.64,
+      "cost_%": 1.75
+    },
+    "trend: price+news+rates forecast": {
+      "sharpe": -0.21,
+      "return_%": -14.77,
+      "max_drawdown_%": -24.91,
+      "cost_%": 1.79
+    }
+  }
+}

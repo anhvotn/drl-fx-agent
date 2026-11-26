@@ -1,0 +1,7 @@
+planted_corr,inputs,found_corr
+0.14,all 12 inputs,0.037
+0.14,2 relevant inputs,0.087
+0.216,all 12 inputs,0.07
+0.216,2 relevant inputs,0.159
+0.306,all 12 inputs,0.129
+0.306,2 relevant inputs,0.261

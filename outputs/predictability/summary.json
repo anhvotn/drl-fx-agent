@@ -1,0 +1,65 @@
+{
+  "days_out_of_sample": 2826,
+  "years_out_of_sample": 11,
+  "from": "2016-01-04",
+  "to": "2026-11-19",
+  "correlation_noise_band_95": 0.037,
+  "sharpe_standard_error": 0.3,
+  "forecast_quality": {
+    "ridge (expected return)": {
+      "r2_oos_%": -1.912,
+      "correlation": 0.008,
+      "hit_rate_%": 49.1,
+      "days": 2826
+    },
+    "logistic (direction)": {
+      "correlation": 0.017,
+      "hit_rate_%": 50.1,
+      "days": 2826
+    }
+  },
+  "trading": {
+    "ridge: long if expected rise": {
+      "sharpe": -0.23,
+      "return_%": -16.73,
+      "max_drawdown_%": -35.49,
+      "trades_per_year": 30.5,
+      "cost_%": 2.35,
+      "carry_%": -3.8,
+      "random_same_turnover_p95": 0.44
+    },
+    "logistic: long if P(up) > 0.5": {
+      "sharpe": -0.05,
+      "return_%": -3.54,
+      "max_drawdown_%": -25.17,
+      "trades_per_year": 46.1,
+      "cost_%": 3.6,
+      "carry_%": -5.55,
+      "random_same_turnover_p95": 0.46
+    },
+    "carry: hold the higher-yielding currency": {
+      "sharpe": 0.19,
+      "return_%": 16.45,
+      "max_drawdown_%": -15.61,
+      "trades_per_year": 0.0,
+      "cost_%": 0.0,
+      "carry_%": 16.49
+    },
+    "trend: direction of last 60 days": {
+      "sharpe": -0.15,
+      "return_%": -11.09,
+      "max_drawdown_%": -22.13,
+      "trades_per_year": 19.0,
+      "cost_%": 1.39,
+      "carry_%": 1.24
+    },
+    "buy & hold": {
+      "sharpe": -0.19,
+      "return_%": -14.13,
+      "max_drawdown_%": -28.57,
+      "trades_per_year": 0.0,
+      "cost_%": 0.0,
+      "carry_%": -16.49
+    }
+  }
+}

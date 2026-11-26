@@ -1,0 +1,22 @@
+{
+  "folds": 8,
+  "out_of_sample_from": "2022-11-22",
+  "out_of_sample_to": "2026-11-22",
+  "agent_sharpe_all_folds": -0.08,
+  "bh_sharpe_all_folds": -0.04,
+  "agent_return_%_all_folds": -2.3,
+  "bh_return_%_all_folds": -1.14,
+  "agent_max_drawdown_%": -12.63,
+  "excess_sharpe_vs_bh_all_folds": -0.02,
+  "folds_with_positive_sharpe": 4,
+  "folds_beating_bh": 5,
+  "cost_drag_%_all_folds": 1.15,
+  "carry_%_all_folds": 3.53,
+  "reward": "PnL vs flat",
+  "trend_sharpe_all_folds": -0.24,
+  "trend_return_%_all_folds": -6.62,
+  "carry_sharpe_all_folds": 0.04,
+  "carry_return_%_all_folds": 1.11,
+  "random_same_turnover_sharpe_mean": -0.12,
+  "random_same_turnover_sharpe_p95": 0.69
+}

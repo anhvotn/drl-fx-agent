@@ -1,0 +1,99 @@
+{
+  "reward": "excess vs buy-and-hold",
+  "instruments": [
+    "EURUSD"
+  ],
+  "per_agent": {
+    "w20_s0": {
+      "EURUSD": {
+        "train": {
+          "total_return_%": 20.01,
+          "sharpe": 0.49,
+          "max_drawdown_%": -10.58,
+          "turnover_per_bar": 0.014,
+          "cost_drag_%": 5.93,
+          "time_in_market_%": 99.9,
+          "excess_sharpe_vs_bh": 0.6,
+          "corr_with_bh": 0.419,
+          "bars": 118054
+        },
+        "dev": {
+          "total_return_%": 0.98,
+          "sharpe": 0.13,
+          "max_drawdown_%": -7.02,
+          "turnover_per_bar": 0.007,
+          "cost_drag_%": 0.67,
+          "time_in_market_%": 99.9,
+          "excess_sharpe_vs_bh": 0.23,
+          "corr_with_bh": -0.167,
+          "bars": 29497
+        },
+        "test": {
+          "total_return_%": -1.27,
+          "sharpe": -0.13,
+          "max_drawdown_%": -8.62,
+          "turnover_per_bar": 0.012,
+          "cost_drag_%": 1.32,
+          "time_in_market_%": 99.7,
+          "excess_sharpe_vs_bh": -1.09,
+          "corr_with_bh": 0.324,
+          "bars": 29497
+        }
+      }
+    },
+    "w40_s0": {
+      "EURUSD": {
+        "train": {
+          "total_return_%": -5.56,
+          "sharpe": -0.15,
+          "max_drawdown_%": -22.74,
+          "turnover_per_bar": 0.0,
+          "cost_drag_%": 0.01,
+          "time_in_market_%": 100.0,
+          "excess_sharpe_vs_bh": 0.0,
+          "corr_with_bh": 1.0,
+          "bars": 118034
+        },
+        "dev": {
+          "total_return_%": -1.76,
+          "sharpe": -0.24,
+          "max_drawdown_%": -6.28,
+          "turnover_per_bar": 0.0,
+          "cost_drag_%": 0.0,
+          "time_in_market_%": 99.8,
+          "excess_sharpe_vs_bh": 0.0,
+          "corr_with_bh": 0.999,
+          "bars": 29477
+        },
+        "test": {
+          "total_return_%": 12.02,
+          "sharpe": 1.14,
+          "max_drawdown_%": -4.32,
+          "turnover_per_bar": 0.0,
+          "cost_drag_%": 0.0,
+          "time_in_market_%": 100.0,
+          "excess_sharpe_vs_bh": 0.0,
+          "corr_with_bh": 1.0,
+          "bars": 29477
+        }
+      }
+    }
+  },
+  "dev_excess_sharpe_vs_bh": {
+    "w20_s0": 0.23,
+    "w40_s0": 0.0
+  },
+  "ensemble_weights": {
+    "w20_s0": 1.0,
+    "w40_s0": 0.0
+  },
+  "selected": "w20_s0",
+  "cleaning": {
+    "EURUSD": {
+      "rows_in": 196814,
+      "nan_cells_in": 0,
+      "periods_dropped": 0,
+      "rows_out": 196814
+    }
+  }
+}

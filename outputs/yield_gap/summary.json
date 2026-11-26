@@ -1,0 +1,80 @@
+{
+  "out_of_sample_days": 2826,
+  "noise_band": 0.037,
+  "same_day_corr": 0.258,
+  "single_input_corr": {
+    "y_gap": 0.007,
+    "y_gap_chg_20": 0.003,
+    "y_slope": 0.017
+  },
+  "ridge": {
+    "yield inputs only": {
+      "correlation": -0.012,
+      "r2_oos_%": -1.921,
+      "hit_rate_%": 50.4
+    },
+    "price + rates": {
+      "correlation": 0.01,
+      "r2_oos_%": -3.788,
+      "hit_rate_%": 51.5
+    },
+    "price + rates + yields": {
+      "correlation": 0.01,
+      "r2_oos_%": -7.683,
+      "hit_rate_%": 50.9
+    }
+  },
+  "rules": {
+    "follow 20-day change of the 2y gap": {
+      "sharpe": 0.4,
+      "return_%": 36.63,
+      "max_drawdown_%": -14.19,
+      "trades_per_year": 38.2,
+      "carry_%": 0.04,
+      "cost_%": 2.54,
+      "random_same_pace_p95": 0.4
+    },
+    "follow the slope (expected policy change)": {
+      "sharpe": 0.12,
+      "return_%": 10.1,
+      "max_drawdown_%": -15.81,
+      "trades_per_year": 10.1,
+      "carry_%": 6.55,
+      "cost_%": 0.76,
+      "random_same_pace_p95": 0.44
+    },
+    "ridge, yield inputs only": {
+      "sharpe": -0.12,
+      "return_%": -8.85,
+      "max_drawdown_%": -25.33,
+      "trades_per_year": 8.3,
+      "carry_%": 2.06,
+      "cost_%": 0.65,
+      "random_same_pace_p95": 0.45
+    },
+    "carry: higher policy rate": {
+      "sharpe": 0.19,
+      "return_%": 16.45,
+      "max_drawdown_%": -15.61,
+      "trades_per_year": 0.0,
+      "carry_%": 16.49,
+      "cost_%": 0.0
+    },
+    "trend: last 60 days": {
+      "sharpe": -0.15,
+      "return_%": -11.09,
+      "max_drawdown_%": -22.13,
+      "trades_per_year": 19.0,
+      "carry_%": 1.24,
+      "cost_%": 1.39
+    },
+    "buy & hold": {
+      "sharpe": -0.19,
+      "return_%": -14.13,
+      "max_drawdown_%": -28.57,
+      "trades_per_year": 0.0,
+      "carry_%": -16.49,
+      "cost_%": 0.0
+    }
+  }
+}

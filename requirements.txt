@@ -1,0 +1,14 @@
+numpy>=1.26
+pandas>=2.1
+torch>=2.2
+gymnasium>=0.29
+stable-baselines3>=2.3
+matplotlib>=3.8
+scikit-learn>=1.4
+# data downloads
+ib_async>=1.0
+dukascopy-python==7.0.0
+openpyxl>=3.1
+# notebook + tests
+jupyter>=1.0
+pytest>=8.0

@@ -1,0 +1,85 @@
+{
+  "years": 11.2,
+  "results": {
+    "fixed size": {
+      "sharpe": 0.34,
+      "return_%_a_year": 1.32,
+      "vol_%": 3.83,
+      "max_drawdown_%": -6.5,
+      "avg_scale": 1.0,
+      "scale_changes_a_year": 0.0,
+      "sharpe_after_financing": 0.03,
+      "return_%_after_financing": 0.1
+    },
+    "volatility targeting": {
+      "sharpe": 0.32,
+      "return_%_a_year": 1.13,
+      "vol_%": 3.59,
+      "max_drawdown_%": -7.7,
+      "avg_scale": 0.98,
+      "scale_changes_a_year": 11.8,
+      "sharpe_after_financing": -0.02,
+      "return_%_after_financing": -0.06
+    },
+    "off when VIX is high": {
+      "sharpe": 0.38,
+      "return_%_a_year": 1.28,
+      "vol_%": 3.39,
+      "max_drawdown_%": -5.7,
+      "avg_scale": 0.81,
+      "scale_changes_a_year": 14.0,
+      "sharpe_after_financing": 0.08,
+      "return_%_after_financing": 0.28
+    },
+    "agent, seed 0": {
+      "sharpe": 0.17,
+      "return_%_a_year": 0.8,
+      "vol_%": 4.72,
+      "max_drawdown_%": -10.0,
+      "avg_scale": 0.98,
+      "scale_changes_a_year": 145.8,
+      "sharpe_after_financing": -0.07,
+      "return_%_after_financing": -0.35,
+      "random_scales_p95": 0.27
+    },
+    "agent, seed 1": {
+      "sharpe": 0.15,
+      "return_%_a_year": 0.8,
+      "vol_%": 5.15,
+      "max_drawdown_%": -7.6,
+      "avg_scale": 1.05,
+      "scale_changes_a_year": 141.9,
+      "sharpe_after_financing": -0.08,
+      "return_%_after_financing": -0.41,
+      "random_scales_p95": 0.3
+    },
+    "agent, seed 2": {
+      "sharpe": 0.24,
+      "return_%_a_year": 1.18,
+      "vol_%": 4.94,
+      "max_drawdown_%": -8.3,
+      "avg_scale": 1.04,
+      "scale_changes_a_year": 144.7,
+      "sharpe_after_financing": -0.01,
+      "return_%_after_financing": -0.04,
+      "random_scales_p95": 0.36
+    },
+    "agent, average of seeds": {
+      "sharpe": 0.2,
+      "return_%_a_year": 0.95,
+      "vol_%": 4.81,
+      "max_drawdown_%": -7.6,
+      "avg_scale": 1.02,
+      "scale_changes_a_year": 152.2,
+      "sharpe_after_financing": -0.05,
+      "return_%_after_financing": -0.25,
+      "random_scales_p95": 0.3
+    }
+  },
+  "checks": {
+    "beats fixed size on every seed": false,
+    "beats the best hand-made sizing rule on every seed": false,
+    "above random scales (p95) on every seed": false,
+    "positive after financing": false
+  }
+}

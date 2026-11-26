@@ -1,0 +1,14 @@
+{
+  "folds": 8,
+  "out_of_sample_from": "2022-11-22",
+  "out_of_sample_to": "2026-11-22",
+  "agent_sharpe_all_folds": 0.84,
+  "bh_sharpe_all_folds": 0.19,
+  "agent_return_%_all_folds": 27.48,
+  "bh_return_%_all_folds": 5.68,
+  "agent_max_drawdown_%": -10.69,
+  "excess_sharpe_vs_bh_all_folds": 0.42,
+  "folds_with_positive_sharpe": 7,
+  "folds_beating_bh": 5,
+  "cost_drag_%_all_folds": 5.47
+}

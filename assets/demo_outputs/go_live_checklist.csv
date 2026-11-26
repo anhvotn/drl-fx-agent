@@ -1,0 +1,9 @@
+check,pass,detail
+Data size >= 100k rows,True,OK
+Train / dev / test consistent,True,"OK: decent in train, dev and test. Proceed to holdout, then fine-tune with a small LR and paper trade."
+Holdout (never seen) Sharpe >= threshold,True,holdout Sharpe 4.44 vs threshold 0.5
+Beats buy-and-hold on holdout (risk-adjusted),True,agent 4.44 vs B&H -0.83
+Out-of-sample data covers up/down/steady/volatile,True,"regimes present: ['down', 'steady', 'up', 'volatile']"
+No regime with badly negative Sharpe,True,weak regimes: none
+Survives 2x transaction costs,True,holdout Sharpe at 2x costs: 4.33
+"Works on an untrained security, same timestep",True,transfer Sharpe 3.98

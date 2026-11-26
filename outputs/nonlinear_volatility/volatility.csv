@@ -1,0 +1,5 @@
+,r2_vs_mean_%,improvement_vs_naive_%,correlation
+naive,4.8,0.0,0.415
+price_only,16.2,11.9,0.411
+price_news_rates,9.6,5.1,0.358
+gbm_all,1.6,-3.4,0.26

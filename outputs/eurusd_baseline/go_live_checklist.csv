@@ -1,0 +1,10 @@
+check,pass,detail
+Data size >= 100k rows,True,OK
+Train / dev / test consistent,False,"OVERFIT: good in training, weak/negative on test. Bring in more data, use a shallower network, or raise dropout."
+Holdout (never seen) Sharpe >= threshold,True,holdout Sharpe 0.56 vs threshold 0.5
+Beats buy-and-hold on holdout (risk-adjusted),True,"agent 0.56 vs B&H -1.56, excess Sharpe vs B&H 1.61"
+"Not stuck in one position (always long, short or flat)",True,"correlation with B&H 0.126, turnover/bar 0.008"
+Out-of-sample data covers up/down/steady/volatile,True,"regimes present: ['down', 'steady', 'up', 'volatile']"
+No regime with badly negative Sharpe,False,"weak regimes: ['steady', 'up']"
+Survives 2x transaction costs,True,holdout Sharpe at 2x costs: 0.41
+"Works on an untrained security, same timestep",False,not run: pass --transfer-csv

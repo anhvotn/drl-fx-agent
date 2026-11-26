@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Run outputs and trained models (regenerate with `python -m drl_fx.run --demo`)
+outputs/
+*.zip
+
+# Market data: vendor data is usually not redistributable
+data/
+*.csv
+!assets/demo_outputs/*.csv
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/

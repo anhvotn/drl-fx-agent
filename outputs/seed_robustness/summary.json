@@ -1,0 +1,14 @@
+{
+  "agents": 9,
+  "holdout_sharpe_median": -0.86,
+  "holdout_sharpe_min": -1.8,
+  "holdout_sharpe_max": 2.32,
+  "agents_with_positive_holdout": 3,
+  "agents_with_positive_test": 8,
+  "agents_positive_in_both_test_and_holdout": 2,
+  "mean_pairwise_position_correlation": 0.14,
+  "agents_that_never_change_position": 2,
+  "share_of_bars_all_agents_on_same_side": 0.032,
+  "vote_holdout_sharpe": -1.25,
+  "buy_and_hold_holdout_sharpe": -1.56
+}
