@@ -20,9 +20,6 @@ only sizes the carry basket did worse than a fixed size and worse than simple vo
 rules. After a retail broker's financing markup on borrowed currency, nothing earns money. Section 5
 has the numbers.
 
-Earlier tests on US equity ETFs (agents that ended up simply holding the ETF) are in the archived
-repository [DRL-trading-agent](https://github.com/anhvotn/DRL-trading-agent).
-
 ![Demo equity curves by split](assets/demo_equity.png)
 *Pipeline check on a synthetic market with a planted edge. Solid: agent net of costs; dashed: buy & hold. Validates the pipeline, not a strategy.*
 
