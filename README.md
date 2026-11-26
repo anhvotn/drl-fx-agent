@@ -6,8 +6,6 @@ go-live checklist. Around it are the checks that decide whether the agent has an
 predictability tests of the inputs, rule-based benchmarks on six currency pairs, and an agent that
 only sizes a known rule.
 
-I built this agent based on the inputs from the Coursera course [Reinforcement Learning for Trading Strategies](https://www.coursera.org/learn/trading-strategies-reinforcement-learning) (New York Institute of Finance and Google Cloud), part of the Machine Learning for Trading Specialization. Sections 2 and 3 below map the course's development steps and go-live checks to the code.
-
 ## What I found
 
 No edge after costs. On EUR/USD, agents that choose long, short or flat looked profitable in single
@@ -190,7 +188,7 @@ to the second encoder.
                        net PnL (after spread + slippage) ─► reward ─► policy optimisation
 ```
 
-| Course component | Where |
+| Component | Where |
 |---|---|
 | RL trader / command center that chooses buy, sell or hold | `env.py` (`HOLD, BUY, SELL`) + PPO policy in `agent.py` |
 | Deep recurrent network (DRNN) feeding the trader | `SplitGRUExtractor` in `agent.py` |
@@ -201,7 +199,7 @@ to the second encoder.
 | Reward/punish (added detail) | the reward is what the position earns including carry, against being flat; `--vs-buy-and-hold` measures it against holding long, which suits markets that mostly rise |
 | Policy optimisation loop with new market data | `fine_tune()`; re-run on rolling windows |
 
-## 2. Development steps (course part 2) → code
+## 2. Development steps → code
 
 1. **Data quantity** – `check_data_size()` warns below 100k rows. 15-minute FX bars give about 25,000
    rows a year, so four years already meet the guideline; daily bars would need decades.
@@ -211,11 +209,11 @@ to the second encoder.
    `k·σ·√(trade size / volume)`; it falls back to an estimate from size, volume and volatility when
    there is no bid/ask data. The checklist re-runs the holdout at **2× costs**.
 4. **Cleaning** – `clean()`: drop periods with too much missing data, fill short gaps.
-   ⚠️ The course says "interpolated means". Linear interpolation uses the *next* price, which is
-   look-ahead bias in a backtest, so the default here is forward-fill (`fill="interpolate"` still available).
+   Linear interpolation would use the *next* price, which is look-ahead bias in a backtest, so the
+   default is forward-fill (`fill="interpolate"` is still available for plots).
 5. **Many algos, weight the recent winners** – `--windows` × `--seeds` trains different agents;
    `ensemble_weights()` gives softmax weights by recent (dev) Sharpe, zero weight to any agent with Sharpe ≤ 0.
-6. **Numeric + sentiment data** – separate encoders, as the course recommends.
+6. **Numeric + sentiment data** – one encoder per data type.
 7. **Out-of-sample backtesting** – chronological train 60 / dev 15 / test 15 / **holdout 10** (most
    recent, untouched until the end). Normalisation is fitted on train only.
 8. **Representative regimes** – `label_regimes()` tags up / down / steady / volatile; metrics are reported per regime.
@@ -223,7 +221,7 @@ to the second encoder.
    dividends). Positions held overnight pay or earn the interest gap (carry, always included); the
    broker's markup on borrowed currency is added in the sizing test.
 
-## 3. Go-live checks (course part 3) → `go_live_checklist()`
+## 3. Go-live checks → `go_live_checklist()`
 
 | Check | Pass rule |
 |---|---|
@@ -369,7 +367,7 @@ news indices do not predict daily EUR/USD moves, so further RL training on them 
 
 ### Nonlinear models and volatility (`outputs/nonlinear_volatility`)
 
-The course suggests blending numerical and categorical inputs and giving different kinds of input
+A common idea is to blend numerical and categorical inputs and give different kinds of input
 their own network. `experiments/nonlinear_and_volatility.py` tries this on the same daily data and
 the same yearly retraining from 2016 (2,826 out-of-sample days). It asks two questions.
 
@@ -428,8 +426,8 @@ signal, for direction or for volatility. For sizing positions, a forecast from p
 
 ### Many rules on six pairs, weighted by recent results (`outputs/multi_pair_rules`)
 
-The course suggests running many algorithms that behave differently in different markets and
-trading the ones that did best in the last few months, or giving them more weight.
+A common idea is to run many algorithms that behave differently in different markets and trade
+the ones that did best in the last few months, or give them more weight.
 `experiments/multi_pair_rules.py` tests this with three rules on six pairs (EUR/USD, GBP/USD,
 AUD/USD, USD/JPY, USD/CHF, USD/CAD; Dukascopy prices, BIS policy rates, ECB deposit rate for the
 euro), 18 strategies in all:
