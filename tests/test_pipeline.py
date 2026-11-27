@@ -365,3 +365,54 @@ def test_macro_rate_diff_is_not_listed_twice():
     df, _ = D.clean(raw)
     f, _, sent = D.make_features(df, D.estimate_costs(df, 1e5))
     assert sent.count("macro_rate_diff") == 1
+
+
+# ---------------------------------------------------------------- fixes from the second round of reviews
+def _fx_features(financing_pct=0.0, markup_bp=0.0):
+    raw = make_market(n=1500, seed=8, missing_frac=0.0).set_index("timestamp")
+    raw["rate_base"], raw["rate_quote"] = 2.0, 4.5
+    df, _ = D.clean(raw)
+    return D.make_features(df, D.estimate_costs(df, 1e5, retail_markup_bps=markup_bp), financing_pct=financing_pct)
+
+
+def test_retail_markup_adds_to_every_trade():
+    f0, *_ = _fx_features()
+    f1, *_ = _fx_features(markup_bp=1.0)
+    assert np.allclose(f1["cost"] - f0["cost"], 1e-4)
+
+
+def test_financing_markup_costs_long_and_short_alike():
+    f, pc, sc = _fx_features(financing_pct=1.5)
+    cols = pc + sc
+    assert (f["financing"] > 0).all()
+    infos = {}
+    for side in (BUY, SELL):
+        env = TradingEnv(f, cols, window=20, random_start=False)
+        env.reset()
+        env.step(side)
+        infos[side] = env.step(HOLD)[4]
+    k, fin = f["carry"].iloc[20], f["financing"].iloc[20]
+    assert np.isclose(infos[BUY]["carry"], k - fin)        # long pays the gap and the markup
+    assert np.isclose(infos[SELL]["carry"], -k - fin)      # short earns the gap but still pays the markup
+
+
+def test_turnover_penalty_changes_reward_not_pnl(market):
+    _, f, cols = market
+    out = {}
+    for pen in (0.0, 5e-4):
+        env = TradingEnv(f, cols, window=20, random_start=False, turnover_penalty=pen)
+        env.reset()
+        _, reward, _, _, info = env.step(BUY)
+        out[pen] = (reward, info["net"])
+    assert out[0.0][1] == out[5e-4][1]                     # same real PnL
+    assert np.isclose(out[0.0][0] - out[5e-4][0], 5e-4 * 100)   # reward lower by the penalty (x100 scale)
+
+
+def test_sharpe_reward_survives_zero_variance(market):
+    _, f, cols = market
+    f = f.copy()
+    f["fwd_ret"], f["carry"], f["cost"] = 0.0, 0.0, 0.0   # every step earns exactly nothing
+    env = TradingEnv(f, cols, window=20, reward="sharpe", random_start=False)
+    env.reset()
+    rewards = [env.step(HOLD)[1] for _ in range(30)]
+    assert all(np.isfinite(rewards))

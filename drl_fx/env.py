@@ -29,12 +29,17 @@ class TradingEnv(gym.Env):
     def __init__(self, f: pd.DataFrame, obs_cols: list[str], window: int = 30,
                  episode_len: int | None = 2048, reward: str = "pnl", allow_short: bool = True,
                  fee: float = 0.0, cost_mult: float = 1.0, dsr_eta: float = 0.01,
-                 random_start: bool = True, seed: int | None = None, benchmark: float = 0.0):
+                 random_start: bool = True, seed: int | None = None, benchmark: float = 0.0,
+                 turnover_penalty: float = 0.0):
         super().__init__()
         self.X = f[obs_cols].to_numpy(np.float32)
         self.r = f["fwd_ret"].to_numpy(np.float64)
         self.c = f["cost"].to_numpy(np.float64) * cost_mult + fee
         self.k = (f["carry"].to_numpy(np.float64) if "carry" in f.columns else np.zeros(len(f)))
+        self.fin = (f["financing"].to_numpy(np.float64) if "financing" in f.columns else np.zeros(len(f)))
+        # extra charge per unit traded that only shapes the reward (discourages flipping on noise);
+        # it is not a real cost, so the logged net PnL does not include it
+        self.turnover_penalty = turnover_penalty
         self.index = f.index
         self.window, self.reward_mode = window, reward
         self.allow_short, self.dsr_eta = allow_short, dsr_eta
@@ -67,14 +72,15 @@ class TradingEnv(gym.Env):
         target = {HOLD: self.pos, BUY: 1.0, SELL: -1.0 if self.allow_short else 0.0}[int(action)]
         trade = abs(target - self.pos)
         cost = trade * self.c[self.t]
-        carry = target * self.k[self.t]
+        carry = target * self.k[self.t] - abs(target) * self.fin[self.t]   # interest gap, less broker markup
         net = target * self.r[self.t] + carry - cost    # simple-ish log-return approximation
         excess = net - self.benchmark * (self.r[self.t] + self.k[self.t])   # == net when benchmark is 0
         self.pos = target
 
+        excess = excess - trade * self.turnover_penalty     # reward only
         if self.reward_mode == "sharpe":
             dA, dB = excess - self.A, excess ** 2 - self.B
-            denom = (self.B - self.A ** 2) ** 1.5
+            denom = max(self.B - self.A ** 2, 0.0) ** 1.5    # running variance can dip below 0 by rounding
             reward = (self.B * dA - 0.5 * self.A * dB) / denom if denom > 1e-12 else 0.0
             self.A += self.dsr_eta * dA
             self.B += self.dsr_eta * dB

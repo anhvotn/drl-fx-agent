@@ -77,7 +77,8 @@ class SizingEnv(gym.Env):
     """One step = one day. Action: scale of the carry basket in [0, MAX_SCALE]."""
 
     def __init__(self, f: pd.DataFrame, X: np.ndarray, episode_len: int = 252, eta: float = 0.01,
-                 random_start: bool = True, seed: int | None = None):
+                 random_start: bool = True, seed: int | None = None, reward: str = "sharpe",
+                 turnover_penalty: float = 0.0):
         super().__init__()
         self.r = f["net"].to_numpy()
         self.fin = f["financing"].to_numpy()
@@ -85,6 +86,7 @@ class SizingEnv(gym.Env):
         self.X = X.astype(np.float32)
         self.episode_len = min(episode_len, len(f) - 1)
         self.random_start, self.eta = random_start, eta
+        self.reward_mode, self.turnover_penalty = reward, turnover_penalty   # penalty: reward only
         self.rng = np.random.default_rng(seed)
         self.observation_space = gym.spaces.Box(-10, 10, shape=(X.shape[1] + 1,), dtype=np.float32)
         self.action_space = gym.spaces.Box(-1.0, 1.0, shape=(1,), dtype=np.float32)
@@ -108,12 +110,16 @@ class SizingEnv(gym.Env):
     def step(self, action):
         new = self.to_scale(action)
         net = new * (self.r[self.t] - self.fin[self.t]) - abs(new - self.scale) * self.tc[self.t]
+        shaped = net - abs(new - self.scale) * self.turnover_penalty
         self.scale = new
-        dA, dB = net - self.A, net ** 2 - self.B                      # differential Sharpe ratio
-        denom = (self.B - self.A ** 2) ** 1.5
-        reward = (self.B * dA - 0.5 * self.A * dB) / denom if denom > 1e-12 else 0.0
-        self.A += self.eta * dA
-        self.B += self.eta * dB
+        if self.reward_mode == "sharpe":
+            dA, dB = shaped - self.A, shaped ** 2 - self.B             # differential Sharpe ratio
+            denom = max(self.B - self.A ** 2, 0.0) ** 1.5
+            reward = (self.B * dA - 0.5 * self.A * dB) / denom if denom > 1e-12 else 0.0
+            self.A += self.eta * dA
+            self.B += self.eta * dB
+        else:
+            reward = shaped * 100
         self.t += 1
         terminated = self.t >= len(self.r) - 1
         truncated = (self.t - self.t0) >= self.episode_len and not terminated
@@ -150,7 +156,8 @@ def hand_rules(f: pd.DataFrame) -> dict[str, pd.Series]:
             "off when VIX is high": (f["vix_pct_250"] <= 0.8).astype(float)}
 
 
-def train_and_predict(f: pd.DataFrame, seed: int, first_year: int, steps: int) -> pd.Series:
+def train_and_predict(f: pd.DataFrame, seed: int, first_year: int, steps: int,
+                      reward: str = "sharpe", turnover_penalty: float = 0.0) -> pd.Series:
     import torch
     from stable_baselines3 import PPO
     from stable_baselines3.common.vec_env import DummyVecEnv
@@ -164,7 +171,8 @@ def train_and_predict(f: pd.DataFrame, seed: int, first_year: int, steps: int) -
         mu, sd = tr[FEATURES].mean(), tr[FEATURES].std().replace(0, 1)
         Xtr = ((tr[FEATURES] - mu) / sd).clip(-5, 5).to_numpy()
         Xte = ((te[FEATURES] - mu) / sd).clip(-5, 5).to_numpy()
-        venv = DummyVecEnv([lambda i=i: SizingEnv(tr, Xtr, seed=seed * 100 + i) for i in range(4)])
+        venv = DummyVecEnv([lambda i=i: SizingEnv(tr, Xtr, seed=seed * 100 + i, reward=reward,
+                                                  turnover_penalty=turnover_penalty) for i in range(4)])
         model = PPO("MlpPolicy", venv, learning_rate=3e-4, n_steps=256, batch_size=256, n_epochs=5,
                     gamma=0.95, ent_coef=0.005, policy_kwargs=dict(net_arch=[32, 32]),
                     seed=seed, verbose=0, device="cpu")
@@ -207,6 +215,10 @@ def main():
     ap.add_argument("--steps", type=int, default=60_000, help="PPO steps per yearly retraining")
     ap.add_argument("--first-test-year", type=int, default=2016)
     ap.add_argument("--financing", type=float, default=0.015, help="IBKR markup on borrowed currency, per year")
+    ap.add_argument("--reward", choices=["sharpe", "pnl"], default="sharpe",
+                    help="differential Sharpe ratio, or plain profit")
+    ap.add_argument("--turnover-penalty-bp", type=float, default=0.0,
+                    help="reward-only charge per unit change of the scale, basis points")
     ap.add_argument("--out", default="outputs/sizing_agent")
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
@@ -224,7 +236,8 @@ def main():
 
     agent = {}
     for s in [int(x) for x in a.seeds.split(",")]:
-        agent[f"agent, seed {s}"] = train_and_predict(f0, s, a.first_test_year, a.steps)
+        agent[f"agent, seed {s}"] = train_and_predict(f0, s, a.first_test_year, a.steps,
+                                                      a.reward, a.turnover_penalty_bp / 1e4)
     scales = {**{k: v[oos] for k, v in hand_rules(f0).items()}, **agent}
     scales["agent, average of seeds"] = pd.concat(agent.values(), axis=1).mean(axis=1)
     pd.DataFrame(scales).to_csv(os.path.join(a.out, "scales.csv"))

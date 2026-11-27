@@ -91,7 +91,7 @@ def clean(df: pd.DataFrame, max_gap: int = 5, max_missing_frac: float = 0.2, slo
 
 # ---------------------------------------------------------------- costs
 def estimate_costs(df: pd.DataFrame, trade_notional: float, impact_k: float = 0.1,
-                   default_spread_bps: float = 1.0) -> pd.Series:
+                   default_spread_bps: float = 1.0, retail_markup_bps: float = 0.0) -> pd.Series:
     """Per-trade one-way cost as a fraction of price.
 
     If bid/ask exist: half-spread (what a market order pays) + square-root impact.
@@ -109,7 +109,8 @@ def estimate_costs(df: pd.DataFrame, trade_notional: float, impact_k: float = 0.
     dollar_vol = (df["close"] * vol).where(vol > 0)     # FX midpoint bars have no volume (-1)
     participation = (trade_notional / dollar_vol).fillna(0.01).clip(upper=1.0)
     impact = impact_k * sigma * np.sqrt(participation)
-    return (half_spread + impact).fillna(half_spread.median())
+    markup = retail_markup_bps / 1e4                    # a retail broker's extra spread, per unit traded
+    return (half_spread + impact + markup).fillna(half_spread.median() + markup)
 
 
 # ---------------------------------------------------------------- features
@@ -120,7 +121,8 @@ def _rsi(close: pd.Series, n: int = 14) -> pd.Series:
     return 100 - 100 / (1 + up / dn.replace(0, np.nan))
 
 
-def make_features(df: pd.DataFrame, cost: pd.Series) -> tuple[pd.DataFrame, list[str], list[str]]:
+def make_features(df: pd.DataFrame, cost: pd.Series,
+                  financing_pct: float = 0.0) -> tuple[pd.DataFrame, list[str], list[str]]:
     """Returns (features, price_cols, sentiment_cols). All features use only past data."""
     c = df["close"]
     lr = np.log(c).diff()
@@ -156,6 +158,11 @@ def make_features(df: pd.DataFrame, cost: pd.Series) -> tuple[pd.DataFrame, list
             sent_cols.append("macro_rate_diff")
     else:
         f["carry"] = 0.0
+
+    # broker's financing markup, percent a year: paid on the size of any open position, long or
+    # short, for the time it is held until the next bar (on top of the interest gap in "carry")
+    held_days = (df.index.to_series().shift(-1) - df.index.to_series()).dt.total_seconds() / 86400
+    f["financing"] = financing_pct / 100 * held_days.where(held_days <= 5, 0.0).fillna(0.0) / 365
 
     f["fwd_ret"] = lr.shift(-1)          # target for the env reward only, never an observation
     f["cost"] = cost

@@ -31,10 +31,10 @@ from .evaluate import (add_benchmarks, backtest, benchmark_metrics, buy_and_hold
                        ensemble_weights, go_live_checklist, metrics, random_benchmark)
 
 
-def prepare(df, trade_notional, fee_bp: float = 0.0):
+def prepare(df, trade_notional, fee_bp: float = 0.0, retail_markup_bp: float = 0.0, financing_pct: float = 0.0):
     df, clean_rep = D.clean(df)
-    cost = D.estimate_costs(df, trade_notional) + fee_bp / 1e4   # spread + impact + commission
-    f, price_cols, sent_cols = D.make_features(df, cost)
+    cost = D.estimate_costs(df, trade_notional, retail_markup_bps=retail_markup_bp) + fee_bp / 1e4
+    f, price_cols, sent_cols = D.make_features(df, cost, financing_pct=financing_pct)
     return f, price_cols, sent_cols, clean_rep
 
 
@@ -51,6 +51,12 @@ def main(argv=None):
     p.add_argument("--notional", type=float, default=100_000)
     p.add_argument("--fee-bp", type=float, default=0.0,
                    help="commission per trade in basis points of the amount traded (IBKR FX: about 0.2)")
+    p.add_argument("--retail-markup-bp", type=float, default=0.0,
+                   help="extra spread a retail broker charges, basis points per unit traded")
+    p.add_argument("--financing-pct", type=float, default=0.0,
+                   help="broker markup on financing, percent a year on any open position (e.g. 1.5 at IBKR)")
+    p.add_argument("--turnover-penalty-bp", type=float, default=0.0,
+                   help="reward-only charge per unit traded, basis points; discourages flipping on noise")
     p.add_argument("--windows", default="20,40", help="one agent per window size")
     p.add_argument("--seeds", type=int, default=1)
     p.add_argument("--steps-pnl", type=int, default=60_000)
@@ -79,7 +85,7 @@ def main(argv=None):
 
     assets = {}
     for name, raw in raws.items():
-        f, price_cols, sent_cols, rep = prepare(raw, a.notional, a.fee_bp)
+        f, price_cols, sent_cols, rep = prepare(raw, a.notional, a.fee_bp, a.retail_markup_bp, a.financing_pct)
         ppy = a.ppy or D.bars_per_year(f)
         f = add_benchmarks(f, ppy)
         assets[name] = dict(f=f, sent=sent_cols, size=D.check_data_size(raw), clean=rep, ppy=ppy)
@@ -103,7 +109,8 @@ def main(argv=None):
     def make_env_fn(w, reward):
         def fn(seed):
             envs = [TradingEnv(x["sp"]["train"], obs_cols, window=w, reward=reward, allow_short=short,
-                               seed=seed + 31 * i, benchmark=benchmark) for i, x in enumerate(assets.values())]
+                               seed=seed + 31 * i, benchmark=benchmark,
+                               turnover_penalty=a.turnover_penalty_bp / 1e4) for i, x in enumerate(assets.values())]
             return envs[0] if len(envs) == 1 else MultiAssetEnv(envs, seed=seed)
         return fn
 
@@ -131,7 +138,7 @@ def main(argv=None):
     m, w = agents[best]
     transfer = None
     if raw_t is not None:
-        ft, *_ = prepare(raw_t, a.notional, a.fee_bp)
+        ft, *_ = prepare(raw_t, a.notional, a.fee_bp, a.retail_markup_bp, a.financing_pct)
         for c in obs_cols:
             if c not in ft.columns:
                 ft[c] = 0.0

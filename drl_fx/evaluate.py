@@ -66,8 +66,9 @@ def metrics(h: pd.DataFrame, periods_per_year: int = 252) -> dict:
 def buy_and_hold(f: pd.DataFrame, window: int) -> pd.DataFrame:
     seg = f.iloc[window - 1:-1]
     k = seg["carry"] if "carry" in seg else 0.0
-    return pd.DataFrame({"pos": 1.0, "ret": seg["fwd_ret"], "carry_long": k, "cost": 0.0, "carry": k,
-                         "net": seg["fwd_ret"] + k}, index=seg.index)
+    fin = seg["financing"] if "financing" in seg else 0.0
+    return pd.DataFrame({"pos": 1.0, "ret": seg["fwd_ret"], "carry_long": k, "cost": 0.0, "carry": k - fin,
+                         "net": seg["fwd_ret"] + k - fin}, index=seg.index)
 
 
 def positions_history(pos: pd.Series, seg: pd.DataFrame) -> pd.DataFrame:
@@ -76,7 +77,8 @@ def positions_history(pos: pd.Series, seg: pd.DataFrame) -> pd.DataFrame:
     seg = seg.loc[pos.index]
     k = seg["carry"] if "carry" in seg else pd.Series(0.0, index=seg.index)
     cost = pos.diff().abs().fillna(pos.abs()) * seg["cost"]
-    carry = pos * k
+    fin = seg["financing"] if "financing" in seg else 0.0
+    carry = pos * k - pos.abs() * fin
     return pd.DataFrame({"pos": pos, "ret": seg["fwd_ret"], "carry_long": k, "cost": cost, "carry": carry,
                          "net": pos * seg["fwd_ret"] + carry - cost})
 
@@ -90,7 +92,7 @@ def add_benchmarks(f: pd.DataFrame, ppy: int, trend_months: float = 3.0) -> pd.D
     """
     f = f.copy()
     look = max(int(ppy * trend_months / 12), 2)
-    past = f["fwd_ret"].shift(1).rolling(look).sum()      # return up to bar t, known at t
+    past = f["ret_1"].rolling(look).sum()                 # returns up to bar t, known at t
     f["bm_trend"] = np.sign(past).fillna(0.0)
     f["bm_carry"] = np.sign(f["carry"]) if "carry" in f else 0.0
     return f

@@ -1,0 +1,8 @@
+,sharpe,return_%_a_year,vol_%,max_drawdown_%,avg_scale,scale_changes_a_year,sharpe_after_financing,return_%_after_financing,random_scales_p95
+fixed size,0.34,1.32,3.83,-6.5,1.0,0.0,0.03,0.1,
+volatility targeting,0.32,1.13,3.59,-7.7,0.98,11.8,-0.02,-0.06,
+off when VIX is high,0.38,1.28,3.39,-5.7,0.81,14.0,0.08,0.28,
+"agent, seed 0",0.09,0.42,4.86,-10.4,1.06,149.4,-0.17,-0.84,0.35
+"agent, seed 1",0.29,1.58,5.52,-11.6,1.13,139.2,0.04,0.25,0.35
+"agent, seed 2",0.23,1.13,4.89,-9.8,1.03,151.9,-0.02,-0.09,0.38
+"agent, average of seeds",0.22,1.07,4.96,-10.6,1.07,149.3,-0.04,-0.2,0.35

@@ -17,8 +17,9 @@ indices and the German-US 2-year yield gap do not predict the next day's move, l
 On six pairs, carry earned a Sharpe of about 0.2 to 0.3 before financing, trend and mean reversion
 less. Picking or weighting rules by their recent results did no better than chance. An agent that
 only sizes the carry basket did worse than a fixed size and worse than simple volatility or VIX
-rules. After a retail broker's financing markup on borrowed currency, nothing earns money. Section 5
-has the numbers.
+rules. After a retail broker's financing markup on borrowed currency, nothing earns money. Outside
+code reviews led to fixes and one last rerun decided in advance, which failed the same way.
+Section 5 has the numbers; section 6 closes the project.
 
 ![Demo equity curves by split](assets/demo_equity.png)
 *Pipeline check on a synthetic market with a planted edge. Solid: agent net of costs; dashed: buy & hold. Validates the pipeline, not a strategy.*
@@ -30,7 +31,7 @@ git clone https://github.com/anhvotn/drl-fx-agent.git
 cd drl-fx-agent
 pip install -r requirements.txt
 
-pytest -q                                              # 32 tests, about a minute
+pytest -q                                              # 36 tests, about a minute
 jupyter notebook notebooks/walkthrough.ipynb           # guided run on synthetic data, ~1-2 min
 python -m drl_fx.run --demo                        # full demo on synthetic data, ~5 min on CPU
 
@@ -44,6 +45,7 @@ python -m experiments.power_check --daily data/eurusd_daily.csv                 
 python -m experiments.multi_pair_rules                                               # 18 rules on six pairs (~5 min)
 python -m experiments.yield_gap                                                      # 2-year yield gap on EUR/USD (~10 s)
 python -m experiments.sizing_agent --seeds 0,1,2                                     # agent sizes the carry basket (~15 min)
+python -m experiments.sizing_agent --reward pnl --turnover-penalty-bp 2              # one of the four final variants
 ```
 
 `--fee-bp 0.2` adds Interactive Brokers' FX commission (0.2 basis points of the amount traded).
@@ -135,6 +137,7 @@ outputs/nonlinear_volatility  nonlinear direction test, volatility forecasts and
 outputs/multi_pair_rules      18 rules on six pairs and ways of weighting them (section 5)
 outputs/yield_gap             2-year yield gap test on EUR/USD (section 5)
 outputs/sizing_agent          agent sizing the carry basket, three seeds (section 5)
+outputs/sizing_agent_v2       final rerun after the reviews: four variants, three seeds each (section 5)
 ```
 
 ## Tests
@@ -156,6 +159,10 @@ at most 7 days, so a series that stops updating is not repeated for ever; and `m
 never listed twice. Cleaning the four EUR/USD files gives identical results before and after these
 changes, as none of them has gaps. Delaying the carry and trend rules by one 15-minute bar leaves
 carry unchanged (Sharpe 0.28) and moves trend from 0.08 to −0.01, well inside the noise.
+
+A second round of reviews led to four more: a retail spread markup adds the same amount to every
+trade; the financing markup costs long and short positions alike; the turnover penalty lowers the
+reward but not the logged profit; and the Sharpe reward stays finite when every return is zero.
 
 ## Data format
 
@@ -514,15 +521,50 @@ to gain on this basket. After IBKR's financing markup, nothing earns money.
 **Conclusion:** the condition for this setup was that the agent must beat its rule, or the rule is
 traded instead. It does not, and the rule itself does not pay after financing on a retail account.
 
-## 6. Suggested next steps
+### Last rerun after the outside reviews (`outputs/sizing_agent_v2`)
 
-1. Futures instead of spot FX. The interest gap is priced into a futures contract, so the retail
-   financing markup disappears, and a trend portfolio across equity, bond, commodity and currency
-   futures has much stronger published evidence than any single-market rule tested here.
-2. A paper-trading loop on the Interactive Brokers paper account (prices → signal → order → fills →
-   comparison with the backtest), with position and loss limits outside the strategy. Useful as
-   engineering even without an edge, and needed before any live trading.
-3. Re-test the 20-day yield gap rule on the other five pairs with their own 2-year yields; on
-   EUR/USD alone it is indistinguishable from luck.
+A second round of three outside reviews looked at the code and the results. Their claim of a look-ahead
+bug in the trend benchmark did not hold: the old code used the previous bar's return, known at
+the close, and a test already checks this. Their other points led to five changes, each with a
+test: a turnover penalty that only shapes the reward (the logged profit stays real), a guard in
+the Sharpe reward against a running variance that rounds below zero, an optional retail spread
+markup (`--retail-markup-bp`), a broker financing markup charged on long and short positions
+alike (`--financing-pct`; the reviewers' version made short positions earn it), and the trend
+benchmark written from `ret_1`.
+
+The sizing agent was then rerun once more, with four variants fixed before the run: reward as
+differential Sharpe ratio or plain profit, with and without a turnover penalty of 2 basis points
+per unit change of the scale (about four days of the basket's average return). Same pass rules,
+three seeds each:
+
+| | Sharpe per seed | Scale changes a year | After 1.5% financing (average) |
+|---|---|---|---|
+| Sharpe reward (as before) | 0.17 / 0.15 / 0.24 | about 145 | −0.05 |
+| Sharpe reward + turnover penalty | 0.19 / 0.16 / 0.25 | 70 to 90 | −0.06 |
+| profit reward | 0.09 / 0.29 / 0.23 | about 145 | −0.04 |
+| profit reward + turnover penalty | 0.09 / 0.25 / 0.26 | 90 to 115 | −0.04 |
+| carry at fixed size | 0.34 | 0 | 0.03 |
+| off when VIX is high | 0.38 | 14 | 0.08 |
+
+The first line reproduces the earlier run exactly. The penalty halves how often the agent changes
+its size but does not change the result; dropping the Sharpe reward does not either. All twelve
+agents stay below the fixed size and below their own scales reshuffled at random (95th
+percentile 0.30 to 0.38). Every variant fails every check.
+
+**Conclusion:** the reviews improved the code and the cost model, and the final rerun confirms
+the earlier result.
+
+## 6. Status
+
+Closed as a documented negative result. No setup passed its checks: not the agent choosing long,
+short or flat, not carry, trend or mean reversion on six pairs, not choosing rules by recent
+results, and not the agent sizing the carry basket. After a retail broker's financing markup,
+nothing earns money.
+
+Reopening it would need one of two things first. One is an input that shows predictive power in
+`experiments/predictability.py` before any training. The other is a market where the costs differ,
+such as futures, where the interest gap is priced into the contract and the financing markup
+disappears. A first check of trend following across 17 markets, using ETFs as stand-ins for micro
+futures, did not beat random signals either (Sharpe 0.24 against 0.35, 2007 to 2026).
 
 *Research code, not investment advice.*
