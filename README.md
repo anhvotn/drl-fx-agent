@@ -76,9 +76,9 @@ Hourly bars are enough for the daily tests and download about four times faster 
 
 Both downloaders save as they go and continue where they stopped when run again. Dukascopy sometimes
 skips months; check the years in the file before training (the current download has 2012–2026
-complete but is missing 2008–2011). Downloaded data stays out of git (see `.gitignore`).
+complete but is missing 2008–2011). 
 
-Interest rates for carry, from FRED (click "Max", then Download → CSV, save to `data/`):
+Interest rates for carry, from FRED (click "Max", then Download → CSV):
 [ECBDFR](https://fred.stlouisfed.org/series/ECBDFR) (ECB deposit facility rate) and
 [DFF](https://fred.stlouisfed.org/series/DFF) (US federal funds effective rate).
 For other currencies, the BIS publishes daily policy rates for more than 40 central banks in one file:
@@ -87,7 +87,7 @@ For the yield and risk tests: [DGS2](https://fred.stlouisfed.org/series/DGS2) (U
 the Bundesbank's [daily two-year Federal Treasury note yield](https://www.bundesbank.de/en/statistics/money-and-capital-markets/interest-rates-and-yields/daily-yields-of-current-federal-securities-772220)
 (series BBSSY.D.REN.EUR.A610.000000WT0202.A) and [VIXCLS](https://fred.stlouisfed.org/series/VIXCLS).
 
-News indices, downloaded in a browser and saved to `data/`: the
+News indices, downloaded in a browser: the
 [SF Fed Daily News Sentiment Index](https://www.frbsf.org/research-and-insights/data-and-indicators/daily-news-sentiment-index/)
 (US newspaper sentiment since 1980) and, optionally, the
 [Economic Policy Uncertainty index](https://fred.stlouisfed.org/series/USEPUINDXD) (choose "Max" before downloading).
